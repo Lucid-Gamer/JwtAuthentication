@@ -5,7 +5,7 @@ show create table t_com_role_mst;
 | t_com_role_mst | CREATE TABLE `t_com_role_mst` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `role_name` varchar(50) NOT NULL,
-  `created_on` date DEFAULT curdate(),
+  `created_on` date DEFAULT (curdate()),
   `is_active` tinyint(4) DEFAULT 1,
   PRIMARY KEY (`id`),
   UNIQUE KEY `role_name` (`role_name`)
@@ -24,7 +24,7 @@ show create table t_com_user_mst;
   `last_name` varchar(50) DEFAULT NULL,
   `username` varchar(20) NOT NULL,
   `password` varchar(512) NOT NULL,
-  `created_on` date DEFAULT curdate(),
+  `created_on` date DEFAULT (curdate()),
   `valid_upto` date DEFAULT NULL,
   `is_active` tinyint(4) DEFAULT 0,
   `credential_locked` tinyint(4) DEFAULT 0,
@@ -44,7 +44,7 @@ show create table t_com_user_roles;
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `user_id` int(11) NOT NULL,
   `role_id` int(11) NOT NULL,
-  `created_on` date DEFAULT curdate(),
+  `created_on` date DEFAULT (curdate()),
   PRIMARY KEY (`id`),
   KEY `user_id` (`user_id`),
   KEY `role_id` (`role_id`),
@@ -54,3 +54,78 @@ show create table t_com_user_roles;
 +------------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
 1 row in set (0.005 sec)
 
+
+INSERT INTO t_com_role_mst(id,role_name,is_active) VALUES (100,'ROLE_ADMIN',1), (101,'ROLE_USER',1), (102,'ROLE_MODERATOR',1);
+
+-- These are the three roles I have selected. If you want to show more set it in database and add the in RoleEnum.java file.
+
+Register user request object
+URL: http://localhost:8080/api/auth/register
+
+Request Object
+{
+    "username":"admin",
+    "password":"password",
+    "firstName":"Lucid",
+    "lastName":"Gamer",
+    "role":[
+        "admin"
+    ]
+}
+
+Response Object
+{
+    "errorMsg": "Succcessfully registered user",
+    "respObject": {
+        "username": "admin",
+        "firstName": "Lucid",
+        "lastName": "Gamer",
+        "role": [
+            "admin"
+        ]
+    },
+    "flag": true,
+    "errorCode": "000"
+}
+
++--------------------------------------------------------+-------------------------------------------------------+
+
+DATABASE CMD SCREENSHOT
+
+mysql> SELECT * FROM T_COM_USER_MST;                                                                                                                                                                                            
++----+------------+-----------+----------+--------------------------------------------------------------+------------+------------+-----------+-------------------+-----------------+                                                 
+| id | first_name | last_name | username | password                                                     | created_on | valid_upto | is_active | credential_locked | account_blocked |                                                 
++----+------------+-----------+----------+--------------------------------------------------------------+------------+------------+-----------+-------------------+-----------------+                                                 
+|  1 | Lucid      | Gamer     | admin    | $2a$10$syL/EqIGT6RFoDmw661JBeKqwShcYQJNsiaT3zz4h1NnFXpQyTC8q | 2024-11-23 | 2026-11-23 |         1 |                 0 |               0 |                                                 
++----+------------+-----------+----------+--------------------------------------------------------------+------------+------------+-----------+-------------------+-----------------+
+
++------------------------------------------------------+---------------------------------------------------------+
+
+Login Request
+URL : http://localhost:8080/api/auth/login
+
+Request Object
+{
+    "username":"admin",
+    "password":"password"
+}
+
+Response Object
+{
+    "errorMsg": "Success",
+    "respObject": {
+        "user": {
+            "username": "admin",
+            "firstName": "Lucid",
+            "lastName": "Gamer",
+            "role": [
+                "ROLE_ADMIN"
+            ]
+        },
+        "token": "eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjpbeyJhdXRob3JpdHkiOiJST0xFX0FETUlOIn1dLCJzdWIiOiJhZG1pbiIsImlhdCI6MTczMjM0NDU0OSwiZXhwIjoxNzMyNDMwOTQ5fQ.BM4DX58FJXOJDW6fn0x88w5aQEOj4Vyji3XewtgNQLs"
+    },
+    "flag": true,
+    "errorCode": "000"
+}
+
++--------------------------------------------------------+-------------------------------------------------------+
